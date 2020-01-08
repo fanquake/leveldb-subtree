@@ -99,18 +99,18 @@ class RecoveryTest {
 
   std::string LogName(uint64_t number) { return LogFileName(dbname_, number); }
 
-  size_t DeleteLogFiles() {
+  size_t RemoveLogFiles() {
     // Linux allows unlinking open files, but Windows does not.
     // Closing the db allows for file deletion.
     Close();
     std::vector<uint64_t> logs = GetFiles(kLogFile);
     for (size_t i = 0; i < logs.size(); i++) {
-      ASSERT_OK(env_->DeleteFile(LogName(logs[i]))) << LogName(logs[i]);
+      ASSERT_OK(env_->RemoveFile(LogName(logs[i]))) << LogName(logs[i]);
     }
     return logs.size();
   }
 
-  void DeleteManifestFile() { ASSERT_OK(env_->DeleteFile(ManifestFileName())); }
+  void DeleteManifestFile() { ASSERT_OK(env_->RemoveFile(ManifestFileName())); }
 
   uint64_t FirstLogFile() { return GetFiles(kLogFile)[0]; }
 
@@ -209,7 +209,7 @@ TEST(RecoveryTest, LargeManifestCompacted) {
 
 TEST(RecoveryTest, NoLogFiles) {
   ASSERT_OK(Put("foo", "bar"));
-  ASSERT_EQ(1, DeleteLogFiles());
+  ASSERT_EQ(1, RemoveLogFiles());
   Open();
   ASSERT_EQ("NOT_FOUND", Get("foo"));
   Open();

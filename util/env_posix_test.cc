@@ -208,7 +208,7 @@ TEST(EnvPosixTest, TestOpenOnRead) {
   for (int i = 0; i < kNumFiles; i++) {
     delete files[i];
   }
-  ASSERT_OK(env_->DeleteFile(test_file));
+  ASSERT_OK(env_->RemoveFile(test_file));
 }
 
 #if HAVE_O_CLOEXEC
@@ -227,7 +227,7 @@ TEST(EnvPosixTest, TestCloseOnExecSequentialFile) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   delete file;
 
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 TEST(EnvPosixTest, TestCloseOnExecRandomAccessFile) {
@@ -255,7 +255,7 @@ TEST(EnvPosixTest, TestCloseOnExecRandomAccessFile) {
   for (int i = 0; i < kReadOnlyFileLimit; i++) {
     delete mmapped_files[i];
   }
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 TEST(EnvPosixTest, TestCloseOnExecWritableFile) {
@@ -272,7 +272,7 @@ TEST(EnvPosixTest, TestCloseOnExecWritableFile) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   delete file;
 
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 TEST(EnvPosixTest, TestCloseOnExecAppendableFile) {
@@ -289,7 +289,7 @@ TEST(EnvPosixTest, TestCloseOnExecAppendableFile) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   delete file;
 
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 TEST(EnvPosixTest, TestCloseOnExecLockFile) {
@@ -306,7 +306,7 @@ TEST(EnvPosixTest, TestCloseOnExecLockFile) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   ASSERT_OK(env_->UnlockFile(lock));
 
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 TEST(EnvPosixTest, TestCloseOnExecLogger) {
@@ -323,7 +323,7 @@ TEST(EnvPosixTest, TestCloseOnExecLogger) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   delete file;
 
-  ASSERT_OK(env_->DeleteFile(file_path));
+  ASSERT_OK(env_->RemoveFile(file_path));
 }
 
 #endif  // HAVE_O_CLOEXEC

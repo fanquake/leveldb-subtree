@@ -282,6 +282,9 @@ class ConcurrentTest {
   }
 };
 
+// Needed when building in C++11 mode.
+constexpr uint32_t ConcurrentTest::K;
+
 // Simple test that does single-threaded testing of the ConcurrentTest
 // scaffolding.
 TEST(SkipTest, ConcurrentWithoutThreads) {

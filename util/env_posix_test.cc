@@ -148,7 +148,7 @@ void CheckCloseOnExecDoesNotLeakFDs(
   if (child_pid == kForkInChildProcessReturnValue) {
     ::execv(child_argv[0], child_argv);
     std::fprintf(stderr, "Error spawning child process: %s\n", strerror(errno));
-    std::exit(kTextCloseOnExecHelperExecFailedCode);
+    std::std::exit(kTextCloseOnExecHelperExecFailedCode);
   }
 
   int child_status = 0;
@@ -186,11 +186,11 @@ TEST(EnvPosixTest, TestOpenOnRead) {
   ASSERT_OK(env_->GetTestDirectory(&test_dir));
   std::string test_file = test_dir + "/open_on_read.txt";
 
-  FILE* f = fopen(test_file.c_str(), "we");
+  FILE* f = std::fopen(test_file.c_str(), "we");
   ASSERT_TRUE(f != nullptr);
   const char kFileData[] = "abcdefghijklmnopqrstuvwxyz";
   fputs(kFileData, f);
-  fclose(f);
+  std::fclose(f);
 
   // Open test file some number above the sum of the two limits to force
   // open-on-read behavior of POSIX Env leveldb::RandomAccessFile.

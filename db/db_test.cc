@@ -425,7 +425,7 @@ class DBTest {
     for (int level = 0; level < config::kNumLevels; level++) {
       int f = NumTableFilesAtLevel(level);
       char buf[100];
-      snprintf(buf, sizeof(buf), "%s%d", (level ? "," : ""), f);
+      std::snprintf(buf, sizeof(buf), "%s%d", (level ? "," : ""), f);
       result += buf;
       if (f > 0) {
         last_non_zero_offset = result.size();
@@ -470,14 +470,14 @@ class DBTest {
   }
 
   void DumpFileCounts(const char* label) {
-    fprintf(stderr, "---\n%s:\n", label);
-    fprintf(
+    std::fprintf(stderr, "---\n%s:\n", label);
+    std::fprintf(
         stderr, "maxoverlap: %lld\n",
         static_cast<long long>(dbfull()->TEST_MaxNextLevelOverlappingBytes()));
     for (int level = 0; level < config::kNumLevels; level++) {
       int num = NumTableFilesAtLevel(level);
       if (num > 0) {
-        fprintf(stderr, "  level %3d : %d files\n", level, num);
+        std::fprintf(stderr, "  level %3d : %d files\n", level, num);
       }
     }
   }
@@ -1023,7 +1023,7 @@ TEST(DBTest, RecoverDuringMemtableCompaction) {
 
 static std::string Key(int i) {
   char buf[100];
-  snprintf(buf, sizeof(buf), "key%06d", i);
+  std::snprintf(buf, sizeof(buf), "key%06d", i);
   return std::string(buf);
 }
 
@@ -1117,7 +1117,7 @@ TEST(DBTest, RepeatedWritesToSameKey) {
   for (int i = 0; i < 5 * kMaxFiles; i++) {
     Put("key", value);
     ASSERT_LE(TotalTableFiles(), kMaxFiles);
-    fprintf(stderr, "after %d: %d files\n", i + 1, TotalTableFiles());
+    std::fprintf(stderr, "after %d: %d files\n", i + 1, TotalTableFiles());
   }
 }
 
@@ -1139,7 +1139,7 @@ TEST(DBTest, SparseMerge) {
   // Write approximately 100MB of "B" values
   for (int i = 0; i < 100000; i++) {
     char key[100];
-    snprintf(key, sizeof(key), "B%010d", i);
+    std::snprintf(key, sizeof(key), "B%010d", i);
     Put(key, value);
   }
   Put("C", "vc");
@@ -1164,9 +1164,9 @@ TEST(DBTest, SparseMerge) {
 static bool Between(uint64_t val, uint64_t low, uint64_t high) {
   bool result = (val >= low) && (val <= high);
   if (!result) {
-    fprintf(stderr, "Value %llu is not in range [%llu, %llu]\n",
-            (unsigned long long)(val), (unsigned long long)(low),
-            (unsigned long long)(high));
+    std::fprintf(stderr, "Value %llu is not in range [%llu, %llu]\n",
+                 (unsigned long long)(val), (unsigned long long)(low),
+                 (unsigned long long)(high));
   }
   return result;
 }
@@ -1499,7 +1499,7 @@ TEST(DBTest, Fflush_Issue474) {
   static const int kNum = 100000;
   Random rnd(test::RandomSeed());
   for (int i = 0; i < kNum; i++) {
-    fflush(nullptr);
+    std::fflush(nullptr);
     ASSERT_OK(Put(RandomKey(&rnd), RandomString(&rnd, 100)));
   }
 }
@@ -1576,7 +1576,7 @@ TEST(DBTest, CustomComparator) {
   for (int run = 0; run < 2; run++) {
     for (int i = 0; i < 1000; i++) {
       char buf[100];
-      snprintf(buf, sizeof(buf), "[%d]", i * 10);
+      std::snprintf(buf, sizeof(buf), "[%d]", i * 10);
       ASSERT_OK(Put(buf, buf));
     }
     Compact("[0]", "[1000000]");
@@ -1746,7 +1746,7 @@ TEST(DBTest, NonWritableFileSystem) {
   std::string big(100000, 'x');
   int errors = 0;
   for (int i = 0; i < 20; i++) {
-    fprintf(stderr, "iter %d; errors %d\n", i, errors);
+    std::fprintf(stderr, "iter %d; errors %d\n", i, errors);
     if (!Put("foo", big).ok()) {
       errors++;
       DelayMilliseconds(100);
@@ -1899,7 +1899,7 @@ TEST(DBTest, BloomFilter) {
     ASSERT_EQ(Key(i), Get(Key(i)));
   }
   int reads = env_->random_read_counter_.Read();
-  fprintf(stderr, "%d present => %d reads\n", N, reads);
+  std::fprintf(stderr, "%d present => %d reads\n", N, reads);
   ASSERT_GE(reads, N);
   ASSERT_LE(reads, N + 2 * N / 100);
 
@@ -1909,7 +1909,7 @@ TEST(DBTest, BloomFilter) {
     ASSERT_EQ("NOT_FOUND", Get(Key(i) + ".missing"));
   }
   reads = env_->random_read_counter_.Read();
-  fprintf(stderr, "%d missing => %d reads\n", N, reads);
+  std::fprintf(stderr, "%d missing => %d reads\n", N, reads);
   ASSERT_LE(reads, 3 * N / 100);
 
   env_->delay_data_sync_.store(false, std::memory_order_release);
@@ -1942,7 +1942,7 @@ static void MTThreadBody(void* arg) {
   int id = t->id;
   DB* db = t->state->test->db_;
   int counter = 0;
-  fprintf(stderr, "... starting thread %d\n", id);
+  std::fprintf(stderr, "... starting thread %d\n", id);
   Random rnd(1000 + id);
   std::string value;
   char valbuf[1500];
@@ -1951,12 +1951,12 @@ static void MTThreadBody(void* arg) {
 
     int key = rnd.Uniform(kNumKeys);
     char keybuf[20];
-    snprintf(keybuf, sizeof(keybuf), "%016d", key);
+    std::snprintf(keybuf, sizeof(keybuf), "%016d", key);
 
     if (rnd.OneIn(2)) {
       // Write values of the form <key, my id, counter>.
       // We add some padding for force compactions.
-      snprintf(valbuf, sizeof(valbuf), "%d.%d.%-1000d", key, id,
+      std::snprintf(valbuf, sizeof(valbuf), "%d.%d.%-1000d", key, id,
                static_cast<int>(counter));
       ASSERT_OK(db->Put(WriteOptions(), Slice(keybuf), Slice(valbuf)));
     } else {
@@ -1978,7 +1978,7 @@ static void MTThreadBody(void* arg) {
     counter++;
   }
   t->state->thread_done[id].store(true, std::memory_order_release);
-  fprintf(stderr, "... stopping thread %d after %d ops\n", id, counter);
+  std::fprintf(stderr, "... stopping thread %d after %d ops\n", id, counter);
 }
 
 }  // namespace
@@ -2132,30 +2132,31 @@ static bool CompareIterators(int step, DB* model, DB* db,
        ok && miter->Valid() && dbiter->Valid(); miter->Next(), dbiter->Next()) {
     count++;
     if (miter->key().compare(dbiter->key()) != 0) {
-      fprintf(stderr, "step %d: Key mismatch: '%s' vs. '%s'\n", step,
-              EscapeString(miter->key()).c_str(),
-              EscapeString(dbiter->key()).c_str());
+      std::fprintf(stderr, "step %d: Key mismatch: '%s' vs. '%s'\n", step,
+                   EscapeString(miter->key()).c_str(),
+                   EscapeString(dbiter->key()).c_str());
       ok = false;
       break;
     }
 
     if (miter->value().compare(dbiter->value()) != 0) {
-      fprintf(stderr, "step %d: Value mismatch for key '%s': '%s' vs. '%s'\n",
-              step, EscapeString(miter->key()).c_str(),
-              EscapeString(miter->value()).c_str(),
-              EscapeString(miter->value()).c_str());
+      std::fprintf(stderr,
+                   "step %d: Value mismatch for key '%s': '%s' vs. '%s'\n",
+                   step, EscapeString(miter->key()).c_str(),
+                   EscapeString(miter->value()).c_str(),
+                   EscapeString(miter->value()).c_str());
       ok = false;
     }
   }
 
   if (ok) {
     if (miter->Valid() != dbiter->Valid()) {
-      fprintf(stderr, "step %d: Mismatch at end of iterators: %d vs. %d\n",
-              step, miter->Valid(), dbiter->Valid());
+      std::fprintf(stderr, "step %d: Mismatch at end of iterators: %d vs. %d\n",
+                   step, miter->Valid(), dbiter->Valid());
       ok = false;
     }
   }
-  fprintf(stderr, "%d entries compared: ok=%d\n", count, ok);
+  std::fprintf(stderr, "%d entries compared: ok=%d\n", count, ok);
   delete miter;
   delete dbiter;
   return ok;
@@ -2171,7 +2172,7 @@ TEST(DBTest, Randomized) {
     std::string k, v;
     for (int step = 0; step < N; step++) {
       if (step % 100 == 0) {
-        fprintf(stderr, "Step %d of %d\n", step, N);
+        std::fprintf(stderr, "Step %d of %d\n", step, N);
       }
       // TODO(sanjay): Test Get() works
       int p = rnd.Uniform(100);
@@ -2231,7 +2232,7 @@ TEST(DBTest, Randomized) {
 
 std::string MakeKey(unsigned int num) {
   char buf[30];
-  snprintf(buf, sizeof(buf), "%016u", num);
+  std::snprintf(buf, sizeof(buf), "%016u", num);
   return std::string(buf);
 }
 
@@ -2281,10 +2282,10 @@ void BM_LogAndApply(int iters, int num_base_files) {
   uint64_t stop_micros = env->NowMicros();
   unsigned int us = stop_micros - start_micros;
   char buf[16];
-  snprintf(buf, sizeof(buf), "%d", num_base_files);
-  fprintf(stderr,
-          "BM_LogAndApply/%-6s   %8d iters : %9u us (%7.0f us / iter)\n", buf,
-          iters, us, ((float)us) / iters);
+  std::snprintf(buf, sizeof(buf), "%d", num_base_files);
+  std::fprintf(stderr,
+               "BM_LogAndApply/%-6s   %8d iters : %9u us (%7.0f us / iter)\n",
+               buf, iters, us, ((float)us) / iters);
 }
 
 }  // namespace leveldb

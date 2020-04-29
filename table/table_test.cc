@@ -124,7 +124,7 @@ class StringSource : public RandomAccessFile {
     if (offset + n > contents_.size()) {
       n = contents_.size() - offset;
     }
-    memcpy(scratch, &contents_[offset], n);
+    std::memcpy(scratch, &contents_[offset], n);
     *result = Slice(scratch, n);
     return Status::OK();
   }
@@ -487,13 +487,13 @@ class Harness {
     Iterator* iter = constructor_->NewIterator();
     ASSERT_TRUE(!iter->Valid());
     KVMap::const_iterator model_iter = data.begin();
-    if (kVerbose) fprintf(stderr, "---\n");
+    if (kVerbose) std::fprintf(stderr, "---\n");
     for (int i = 0; i < 200; i++) {
       const int toss = rnd->Uniform(5);
       switch (toss) {
         case 0: {
           if (iter->Valid()) {
-            if (kVerbose) fprintf(stderr, "Next\n");
+            if (kVerbose) std::fprintf(stderr, "Next\n");
             iter->Next();
             ++model_iter;
             ASSERT_EQ(ToString(data, model_iter), ToString(iter));
@@ -502,7 +502,7 @@ class Harness {
         }
 
         case 1: {
-          if (kVerbose) fprintf(stderr, "SeekToFirst\n");
+          if (kVerbose) std::fprintf(stderr, "SeekToFirst\n");
           iter->SeekToFirst();
           model_iter = data.begin();
           ASSERT_EQ(ToString(data, model_iter), ToString(iter));
@@ -513,7 +513,7 @@ class Harness {
           std::string key = PickRandomKey(rnd, keys);
           model_iter = data.lower_bound(key);
           if (kVerbose)
-            fprintf(stderr, "Seek '%s'\n", EscapeString(key).c_str());
+            std::fprintf(stderr, "Seek '%s'\n", EscapeString(key).c_str());
           iter->Seek(Slice(key));
           ASSERT_EQ(ToString(data, model_iter), ToString(iter));
           break;
@@ -521,7 +521,7 @@ class Harness {
 
         case 3: {
           if (iter->Valid()) {
-            if (kVerbose) fprintf(stderr, "Prev\n");
+            if (kVerbose) std::fprintf(stderr, "Prev\n");
             iter->Prev();
             if (model_iter == data.begin()) {
               model_iter = data.end();  // Wrap around to invalid value
@@ -534,7 +534,7 @@ class Harness {
         }
 
         case 4: {
-          if (kVerbose) fprintf(stderr, "SeekToLast\n");
+          if (kVerbose) std::fprintf(stderr, "SeekToLast\n");
           iter->SeekToLast();
           if (keys.empty()) {
             model_iter = data.end();
@@ -686,8 +686,8 @@ TEST(Harness, Randomized) {
     for (int num_entries = 0; num_entries < 2000;
          num_entries += (num_entries < 50 ? 1 : 200)) {
       if ((num_entries % 10) == 0) {
-        fprintf(stderr, "case %d of %d: num_entries = %d\n", (i + 1),
-                int(kNumTestArgs), num_entries);
+        std::fprintf(stderr, "case %d of %d: num_entries = %d\n", (i + 1),
+                     int(kNumTestArgs), num_entries);
       }
       for (int e = 0; e < num_entries; e++) {
         std::string v;
@@ -716,7 +716,7 @@ TEST(Harness, RandomizedLongDB) {
   for (int level = 0; level < config::kNumLevels; level++) {
     std::string value;
     char name[100];
-    snprintf(name, sizeof(name), "leveldb.num-files-at-level%d", level);
+    std::snprintf(name, sizeof(name), "leveldb.num-files-at-level%d", level);
     ASSERT_TRUE(db()->GetProperty(name, &value));
     files += atoi(value.c_str());
   }
@@ -740,8 +740,8 @@ TEST(MemTableTest, Simple) {
   Iterator* iter = memtable->NewIterator();
   iter->SeekToFirst();
   while (iter->Valid()) {
-    fprintf(stderr, "key: '%s' -> '%s'\n", iter->key().ToString().c_str(),
-            iter->value().ToString().c_str());
+    std::fprintf(stderr, "key: '%s' -> '%s'\n", iter->key().ToString().c_str(),
+                 iter->value().ToString().c_str());
     iter->Next();
   }
 
@@ -752,9 +752,9 @@ TEST(MemTableTest, Simple) {
 static bool Between(uint64_t val, uint64_t low, uint64_t high) {
   bool result = (val >= low) && (val <= high);
   if (!result) {
-    fprintf(stderr, "Value %llu is not in range [%llu, %llu]\n",
-            (unsigned long long)(val), (unsigned long long)(low),
-            (unsigned long long)(high));
+    std::fprintf(stderr, "Value %llu is not in range [%llu, %llu]\n",
+                 (unsigned long long)(val), (unsigned long long)(low),
+                 (unsigned long long)(high));
   }
   return result;
 }
@@ -798,7 +798,7 @@ static bool SnappyCompressionSupported() {
 
 TEST(TableTest, ApproximateOffsetOfCompressed) {
   if (!SnappyCompressionSupported()) {
-    fprintf(stderr, "skipping compression tests\n");
+    std::fprintf(stderr, "skipping compression tests\n");
     return;
   }
 

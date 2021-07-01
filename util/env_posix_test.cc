@@ -242,8 +242,8 @@ TEST(EnvPosixTest, TestCloseOnExecRandomAccessFile) {
   // Exhaust the RandomAccessFile mmap limit. This way, the test
   // RandomAccessFile instance below is backed by a file descriptor, not by an
   // mmap region.
-  leveldb::RandomAccessFile* mmapped_files[kReadOnlyFileLimit] = {nullptr};
-  for (int i = 0; i < kReadOnlyFileLimit; i++) {
+  leveldb::RandomAccessFile* mmapped_files[kMMapLimit];
+  for (int i = 0; i < kMMapLimit; i++) {
     ASSERT_OK(env_->NewRandomAccessFile(file_path, &mmapped_files[i]));
   }
 
@@ -252,7 +252,7 @@ TEST(EnvPosixTest, TestCloseOnExecRandomAccessFile) {
   CheckCloseOnExecDoesNotLeakFDs(open_fds);
   delete file;
 
-  for (int i = 0; i < kReadOnlyFileLimit; i++) {
+  for (int i = 0; i < kMMapLimit; i++) {
     delete mmapped_files[i];
   }
   ASSERT_OK(env_->RemoveFile(file_path));
